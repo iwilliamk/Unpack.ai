@@ -2,7 +2,11 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Brain, Shield, Code, Search } from 'lucide-react';
 
-export const Hero = () => {
+interface HeroProps {
+  onStartAnalysis: () => void;
+}
+
+export const Hero = ({ onStartAnalysis }: HeroProps) => {
   return (
     <div className="flex flex-col items-center text-center space-y-12 py-24 px-4 bg-[#1A1F2C]">
       {/* Hero Section */}
@@ -44,7 +48,7 @@ export const Hero = () => {
         <Button 
           size="lg" 
           className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-8 py-6 text-lg"
-          onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+          onClick={onStartAnalysis}
         >
           Start Analysis
         </Button>

@@ -1,69 +1,142 @@
-# Welcome to your Lovable project
+# unpack.ai - AI-Powered Malware Analysis Platform
 
-## Project info
+## Backend Requirements
 
-**URL**: https://lovable.dev/projects/7843886e-d34a-4783-b4d0-eed8e48bbad4
+### Core Components
 
-## How can I edit this code?
+1. **File Processing Service**
+   - Handle file uploads securely
+   - Implement file size limits and type validation
+   - Store files temporarily in a secure environment
+   - Process and parse different file types
 
-There are several ways of editing your application.
+2. **Code Analysis Engine**
+   - Implement pattern recognition for malware signatures
+   - Develop AI models for code analysis
+   - Create APIs for real-time code analysis
+   - Handle different programming languages
 
-**Use Lovable**
+3. **Secure Sandbox Environment**
+   - Implement isolated environments for code analysis
+   - Set up containerization (e.g., Docker) for secure execution
+   - Monitor system calls and behavior
+   - Implement timeout mechanisms
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7843886e-d34a-4783-b4d0-eed8e48bbad4) and start prompting.
+4. **AI Integration**
+   - Set up OpenAI API integration
+   - Implement custom AI models for specific analysis tasks
+   - Create API endpoints for AI-powered features
+   - Handle concurrent AI requests efficiently
 
-Changes made via Lovable will be committed automatically to this repo.
+5. **Authentication & Authorization**
+   - Implement user authentication
+   - Set up role-based access control
+   - Secure API endpoints
+   - Handle session management
 
-**Use your preferred IDE**
+### API Requirements
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **File Management API**
+   ```
+   POST /api/files/upload
+   GET /api/files/{fileId}
+   DELETE /api/files/{fileId}
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Analysis API**
+   ```
+   POST /api/analysis/start
+   GET /api/analysis/{analysisId}
+   POST /api/analysis/{analysisId}/stop
+   ```
 
-Follow these steps:
+3. **AI Interaction API**
+   ```
+   POST /api/ai/analyze
+   POST /api/ai/chat
+   GET /api/ai/suggestions
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Security Requirements
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. **File Security**
+   - Implement virus scanning for uploaded files
+   - Set up secure file storage
+   - Implement file encryption at rest
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. **API Security**
+   - Implement rate limiting
+   - Set up CORS policies
+   - Use API keys and JWT tokens
+   - Implement request validation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+3. **Sandbox Security**
+   - Implement resource limits
+   - Set up network isolation
+   - Monitor for malicious behavior
+   - Implement cleanup procedures
+
+### Database Requirements
+
+1. **Schema Design**
+   - User management
+   - File metadata storage
+   - Analysis results storage
+   - AI interaction history
+
+2. **Performance**
+   - Implement caching
+   - Set up database indexing
+   - Handle concurrent connections
+   - Implement query optimization
+
+### Deployment Requirements
+
+1. **Infrastructure**
+   - Set up containerization
+   - Implement auto-scaling
+   - Configure load balancing
+   - Set up monitoring and logging
+
+2. **CI/CD**
+   - Set up automated testing
+   - Implement deployment pipelines
+   - Configure environment management
+   - Set up backup procedures
+
+## Getting Started
+
+1. Clone this repository
+2. Install dependencies: `npm install`
+3. Set up environment variables
+4. Start the development server: `npm run dev`
+
+## Environment Variables
+
+```env
+# API Keys
+OPENAI_API_KEY=your_openai_api_key
+JWT_SECRET=your_jwt_secret
+
+# Database
+DATABASE_URL=your_database_url
+
+# Storage
+STORAGE_BUCKET=your_storage_bucket
+
+# Security
+MAX_FILE_SIZE=10485760 # 10MB
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7843886e-d34a-4783-b4d0-eed8e48bbad4) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the LICENSE file for details.

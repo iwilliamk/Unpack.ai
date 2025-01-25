@@ -1,12 +1,16 @@
 import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, File } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export const FileUpload = () => {
+interface FileUploadProps {
+  onFileUpload?: () => void;
+}
+
+export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     console.log('Files dropped:', acceptedFiles);
     
@@ -22,10 +26,11 @@ export const FileUpload = () => {
       reader.onload = () => {
         console.log('File content:', reader.result);
         toast.success(`Successfully loaded ${file.name}`);
+        onFileUpload?.();
       };
       reader.readAsText(file);
     });
-  }, []);
+  }, [onFileUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -46,13 +51,13 @@ export const FileUpload = () => {
       <input {...getInputProps()} />
       <div className="flex flex-col items-center gap-2">
         <Upload className="w-10 h-10 text-muted-foreground" />
-        <p className="text-lg font-medium">
+        <p className="text-lg font-medium text-white">
           {isDragActive ? 'Drop files here' : 'Drag & drop files here'}
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-400">
           or click to select files
         </p>
-        <p className="text-xs text-muted-foreground mt-2">
+        <p className="text-xs text-gray-400 mt-2">
           Supported files: .txt, .js, .py, .cpp, .c, .h, .cs, .java, .rb, .php (Max 10MB)
         </p>
       </div>
