@@ -52,7 +52,7 @@ export default function App() {
                     <Analysis />
                   </SignedIn>
                   <SignedOut>
-                    <RedirectToSignIn />
+                    <RedirectToSignIn redirectUrl="/analysis" />
                   </SignedOut>
                 </>
               }
