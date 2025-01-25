@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 interface FileUploadProps {
-  onFileUpload?: () => void;
+  onFileUpload: (files: File[]) => void;
 }
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
@@ -26,10 +26,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
       reader.onload = () => {
         console.log('File content:', reader.result);
         toast.success(`Successfully loaded ${file.name}`);
-        onFileUpload?.();
       };
       reader.readAsText(file);
     });
+    
+    onFileUpload(acceptedFiles);
   }, [onFileUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
