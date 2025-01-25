@@ -15,11 +15,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#1A1F2C]">
       {!isAnalysisMode ? (
-        <div className="container mx-auto px-4">
+        <div>
           <Hero />
-          <div className="max-w-3xl mx-auto mb-16">
+          <div className="max-w-3xl mx-auto px-4 py-16">
+            <h2 className="text-2xl font-semibold text-white mb-6 text-center">
+              Ready to analyze your code?
+            </h2>
             <FileUpload />
           </div>
         </div>
