@@ -1,12 +1,39 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useState } from 'react';
+import CodeEditor from '@/components/CodeEditor';
+import AnalysisPanel from '@/components/AnalysisPanel';
+import ChatInterface from '@/components/ChatInterface';
+import { ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
 
 const Index = () => {
+  const [code, setCode] = useState('// Paste your code here for analysis');
+
+  const handleAnalyze = () => {
+    console.log('Analyzing code:', code);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="h-screen bg-background">
+      <ResizablePanelGroup direction="horizontal">
+        <ResizablePanel defaultSize={50} minSize={30}>
+          <div className="h-screen p-4">
+            <CodeEditor code={code} onChange={setCode} />
+          </div>
+        </ResizablePanel>
+        <ResizablePanel defaultSize={50} minSize={30}>
+          <ResizablePanelGroup direction="vertical">
+            <ResizablePanel defaultSize={60}>
+              <div className="h-full p-4">
+                <AnalysisPanel onAnalyze={handleAnalyze} />
+              </div>
+            </ResizablePanel>
+            <ResizablePanel defaultSize={40}>
+              <div className="h-full p-4">
+                <ChatInterface />
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
