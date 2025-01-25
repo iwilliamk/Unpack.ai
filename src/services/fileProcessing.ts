@@ -11,7 +11,10 @@ interface ProcessedFile {
 }
 
 class FileProcessingService {
-  private static readonly ALLOWED_EXTENSIONS = ['.txt', '.js', '.py', '.cpp', '.c', '.h', '.cs', '.java', '.rb', '.php'];
+  private static readonly ALLOWED_EXTENSIONS = [
+    '.js', '.ts', '.tsx', '.jsx', '.py', '.cpp', '.c', '.h', '.cs', '.java', '.rb', '.php',
+    '.txt', '.csv', '.tsv', '.json', '.schema.json', '.parquet', '.yml', '.yaml', '.xml', '.toml', '.proto'
+  ];
   private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   async processFile(file: File): Promise<ProcessedFile | null> {

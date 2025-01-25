@@ -82,7 +82,7 @@ const Analysis = () => {
       ) : !isFileUploaded ? (
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-foreground mb-4 text-center">
+            <h2 className="text-3xl font-bold text-muted-foreground mb-4 text-center">
               Upload Your Code
             </h2>
             <p className="text-muted-foreground text-center mb-8">
