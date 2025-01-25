@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { File, Folder, ChevronRight, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface FileNode {
-  name: string;
+import { ProcessedFile } from '@/types/analysis';
+
+interface FileNode extends Partial<ProcessedFile> {
   type: 'file' | 'folder';
-  content?: string;
   children?: FileNode[];
   path: string;
 }
@@ -21,7 +21,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   onFileSelect,
   selectedFile
 }) => {
-  const renderNode = (node: FileNode, depth = 0) => {
+  const renderNode = useCallback((node: FileNode, depth = 0) => {
     const isFolder = node.type === 'folder';
     const isSelected = selectedFile?.path === node.path;
 
@@ -35,6 +35,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
           )}
           style={{ paddingLeft: `${depth * 1.5}rem` }}
           onClick={() => !isFolder && onFileSelect(node)}
+          onDoubleClick={() => !isFolder && node.content && onFileSelect(node)}
         >
           {isFolder ? (
             <>
@@ -49,7 +50,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         {isFolder && node.children?.map(child => renderNode(child, depth + 1))}
       </div>
     );
-  };
+  }, [onFileSelect, selectedFile]);
 
   return (
     <div className="w-64 h-full bg-background border-r overflow-y-auto">

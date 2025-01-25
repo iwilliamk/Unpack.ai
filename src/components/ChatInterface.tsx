@@ -1,17 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Send } from 'lucide-react';
+import { aiService } from '@/services/ai';
+
+interface Message {
+  text: string;
+  isUser: boolean;
+}
 
 const ChatInterface: React.FC = () => {
   const [message, setMessage] = useState('');
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      text: 'Welcome to unpack.ai! I can help you analyze code, identify potential threats, and understand encryption methods. What would you like to examine?',
+      isUser: false
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim()) {
-      console.log('Sending message:', message);
+    if (message.trim() && !isLoading) {
+      const userMessage = message.trim();
       setMessage('');
+      setMessages(prev => [...prev, { text: userMessage, isUser: true }]);
+      setIsLoading(true);
+
+      try {
+        const response = await aiService.analyzeCode(userMessage, "chat");
+        setMessages(prev => [...prev, { text: response.summary, isUser: false }]);
+      } 
+      catch (error) {
+        console.error('Error getting AI response:', error);
+        setMessages(prev => [...prev, { text: 'Sorry, I encountered an error. Please try again.', isUser: false }]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -19,12 +45,11 @@ const ChatInterface: React.FC = () => {
     <Card className="flex flex-col h-full">
       <div className="flex-1 p-4 overflow-y-auto">
         <div className="space-y-4">
-          <Card className="p-3 bg-secondary">
-            <p className="text-sm">
-              Welcome to unpack.ai! I can help you analyze code, identify potential threats,
-              and understand encryption methods. What would you like to examine?
-            </p>
-          </Card>
+          {messages.map((msg, index) => (
+            <Card key={index} className={`p-3 ${msg.isUser ? 'bg-primary/10 ml-8' : 'bg-secondary mr-8'}`}>
+              <p className="text-sm">{msg.text}</p>
+            </Card>
+          ))}
         </div>
       </div>
       <form onSubmit={handleSubmit} className="p-4 border-t">

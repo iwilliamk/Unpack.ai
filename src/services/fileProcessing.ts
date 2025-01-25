@@ -15,8 +15,10 @@ class FileProcessingService {
   private static readonly MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   async processFile(file: File): Promise<ProcessedFile | null> {
+    console.log('DEBUG: processFile called in fileProcessing.ts', { fileName: file.name, fileType: file.type });
     try {
       if (!this.validateFile(file)) {
+        console.log('DEBUG: File validation failed');
         return null;
       }
 
@@ -55,12 +57,54 @@ class FileProcessingService {
   }
 
   private async readFileContent(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(file);
-    });
+    try {
+      const maxRetries = 3;
+      let lastError = null;
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const content = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            
+            const timeoutId = setTimeout(() => {
+              reader.abort();
+              reject(new Error('File read timeout'));
+            }, 30000); // 30 second timeout
+            
+            reader.onload = () => {
+              clearTimeout(timeoutId);
+              if (typeof reader.result === 'string') {
+                resolve(reader.result);
+              } else {
+                reject(new Error('Invalid file content'));
+              }
+            };
+            
+            reader.onerror = () => {
+              clearTimeout(timeoutId);
+              reject(new Error('Failed to read file'));
+            };
+            
+            reader.readAsText(file);
+          });
+          
+          if (!content) {
+            throw new Error('Empty file content');
+          }
+          
+          return content;
+        } catch (error) {
+          console.warn(`Attempt ${attempt + 1} failed:`, error);
+          lastError = error;
+          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+        }
+      }
+      
+      throw lastError || new Error('Failed to read file after multiple attempts');
+    } catch (error) {
+      console.error('File reading error:', error);
+      throw error;
+    }
   }
 
   private async generateHash(content: string): Promise<string> {

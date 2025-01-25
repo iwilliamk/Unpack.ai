@@ -9,52 +9,93 @@ import { aiService } from '@/services/ai';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
+import { ProcessedFile } from '@/types/analysis';
+
 interface FileUploadProps {
-  onFileUpload: (files: File[]) => void;
+  onFileUpload: (files: ProcessedFile[]) => void;
+  setIsProcessing: (isProcessing: boolean) => void;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload }) => {
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ onFileUpload, setIsProcessing }) => {
+  const processFiles = useCallback(async (files: File[]) => {
+    if (!files.length) return [];
+    
     try {
-      const processedFiles = await Promise.all(
-        acceptedFiles.map(async (file) => {
-          const processedFile = await fileProcessingService.processFile(file);
-          if (!processedFile) return null;
+      const results = await Promise.all(
+      files.map(async (file) => {
+        try {
+          return await fileProcessingService.processFile(file);
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+          toast.error(`Failed to process ${file.name}`);
+          return null;
+        }
+      })
+    );
+    return results.filter((file): file is ProcessedFile => file !== null);
+    } catch (error) {
+      console.error('Error in processFiles:', error);
+      toast.error('Failed to process files');
+      return [];
+    }
+  }, [fileProcessingService]);
 
-          // Run code analysis for JavaScript/TypeScript files
-          let codeAnalysis = null;
-          if (/\.(js|ts|jsx|tsx)$/.test(file.name)) {
-            try {
-              codeAnalysis = codeAnalyzer.analyzeCode(processedFile.content);
-            } catch (err) {
-              console.warn('Code analysis error:', err.message);
-            }
-          }
-          
-          // Only analyze text files
-          let aiAnalysis = null;
-          if (processedFile.content) {
-            aiAnalysis = await aiService.analyzeCode(processedFile.content, processedFile.name);
-          }
-          
-          return {
-            ...processedFile,
-            codeAnalysis,
-            aiAnalysis
-          };
-        })
-      );
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (!acceptedFiles.length) {
+      toast.error('No files selected');
+      return;
+    }
 
-      const validFiles = processedFiles.filter(file => file !== null);
-      if (validFiles.length > 0) {
-        toast.success(`Successfully processed ${validFiles.length} files`);
-        onFileUpload(validFiles);
+    console.log('DEBUG: onDrop called with:', acceptedFiles);
+    setIsProcessing(true);
+    if (acceptedFiles.some(file => !file)) {
+      console.error('Invalid file object received');
+      setIsProcessing(false);
+      return;
+    }
+
+    try {
+      toast.info(`Processing ${acceptedFiles.length} files...`);
+      console.log('DEBUG: Starting file processing in FileUpload.tsx');
+      
+      const validFiles = acceptedFiles.filter(file => file.size <= MAX_FILE_SIZE);
+      if (validFiles.length !== acceptedFiles.length) {
+        toast.error('Some files were too large (max 10MB)');
       }
+      
+      const processedFiles = await processFiles(validFiles);
+      const validProcessedFiles = processedFiles.filter(file => typeof file.content === 'string');
+      
+      await Promise.all(validProcessedFiles.map(async (file) => {
+        if (/\.(js|ts|jsx|tsx)$/.test(file.name)) {
+          try {
+            (file as ProcessedFile & { codeAnalysis?: unknown }).codeAnalysis = await codeAnalyzer.analyzeCode(file.content);
+          } catch (err) {
+            console.warn('Code analysis error:', err.message);
+          }
+        }
+        
+        try {
+          (file as ProcessedFile & { aiAnalysis?: unknown }).aiAnalysis = await aiService.analyzeCode(file.content, file.name);
+        } catch (err) {
+          console.warn('AI analysis error:', err.message);
+        }
+      }));      if (processedFiles.length === 0) {
+        toast.error('No files were successfully processed');
+        return;
+      }
+      
+      // Show success message and process files
+      toast.success(`Successfully processed ${processedFiles.length} files`);
+      console.log('DEBUG: Calling onFileUpload with processed files');
+      onFileUpload(processedFiles);
     } catch (error) {
       console.error('Error processing files:', error);
       toast.error('Failed to process files');
+    } finally {
+      setIsProcessing(false);
     }
-  }, [onFileUpload]);
+  }, [onFileUpload, setIsProcessing, processFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
